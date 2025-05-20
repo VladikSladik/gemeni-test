@@ -1,0 +1,3 @@
+
+export const main = {"name":"files/j2o45tht57vr","mimeType":"audio/mpeg","sizeBytes":"44701292","createTime":"2025-05-20T12:09:25.098121Z","expirationTime":"2025-05-22T12:09:25.034567978Z","updateTime":"2025-05-20T12:09:25.098121Z","sha256Hash":"ZjgyNmZlZDZlY2I0YjBlMzg1OTY5MjBlYzU1OTQ5YjFhMjAzNjE1YmYxMzQ0NDA5MTI4ZWFjNzE3OTZkZDE2NA==","uri":"https://generativelanguage.googleapis.com/v1beta/files/j2o45tht57vr","state":"ACTIVE","source":"UPLOADED"}
+export const members = [{"name":"Олеся","uri":"https://generativelanguage.googleapis.com/v1beta/files/8y927nutqmc1","mimeType":"audio/mpeg"},{"name":"Артем","uri":"https://generativelanguage.googleapis.com/v1beta/files/9513ws26zfai","mimeType":"audio/mpeg"}]
