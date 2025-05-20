@@ -108,13 +108,40 @@ const responseSchema = {
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_APP_GEMINI_KEY });
 
-const parseTimeToSeconds = (timeString: string) => {
-    // Поддержка формата mm:ss или m:ss
-    const match = timeString.match(/^(\d+):(\d{2})$/);
-    if (!match) return 0;
-    const [, min, sec] = match;
-    return Number(min) * 60 + Number(sec);
-};
+// const parseTimeToSeconds = (timeString: string) => {
+//     const match = timeString.match(/^(\d+):(\d{2})$/);
+//     if (!match) return 0;
+//     const [, min, sec] = match;
+//     return Number(min) * 60 + Number(sec);
+// };
+
+
+
+function parseTimeToSeconds(timeString: string): number {
+    // Проверяем формат строки с помощью регулярного выражения
+    const timeRegex = /^(?:([0-1]?[0-9]|2[0-3]):)?([0-5][0-9]):([0-5][0-9])$/;
+
+    if (!timeRegex.test(timeString)) {
+        throw new Error('Invalid time format. Expected HH:MM:SS or MM:SS');
+    }
+
+    // Разбиваем строку на компоненты
+    const parts = timeString.split(':');
+
+    // В зависимости от количества частей определяем формат
+    if (parts.length === 3) {
+        // Формат HH:MM:SS
+        const [hours, minutes, seconds] = parts.map(Number);
+        return hours * 3600 + minutes * 60 + seconds;
+    } else if (parts.length === 2) {
+        // Формат MM:SS
+        const [minutes, seconds] = parts.map(Number);
+        return minutes * 60 + seconds;
+    } else {
+        throw new Error('Invalid time format. Expected HH:MM:SS or MM:SS');
+    }
+}
+
 
 const App = () => {
     const [mainAudio, setMainAudio] = useState(null);
@@ -151,33 +178,33 @@ const App = () => {
 
         try {
             // 1. Загрузка основного аудио
-            // const mainFile = await ai.files.upload({
-            //     file: mainAudio,
-            //     config: { mimeType: mainAudio.type }
-            // });
-            const mainFile = main
+            const mainFile = await ai.files.upload({
+                file: mainAudio,
+                config: { mimeType: mainAudio.type }
+            });
+            // const mainFile = main
 
             // 2. Загрузка образцов участников
-            // const participantUploads = await Promise.all(
-            //     participants
-            //         .filter(p => p.file) // Фильтруем участников без файлов
-            //         .map(async (participant) => {
-            //             const uploadedFile = await ai.files.upload({
-            //                 file: participant.file,
-            //                 config: {
-            //                     mimeType: participant.file.type,
-            //                     displayName: participant.name
-            //                 }
-            //             });
-            //             return {
-            //                 name: participant.name,
-            //                 uri: uploadedFile.uri,
-            //                 mimeType: uploadedFile.mimeType
-            //             };
-            //         })
-            // );
+            const participantUploads = await Promise.all(
+                participants
+                    .filter(p => p.file) // Фильтруем участников без файлов
+                    .map(async (participant) => {
+                        const uploadedFile = await ai.files.upload({
+                            file: participant.file,
+                            config: {
+                                mimeType: participant.file.type,
+                                displayName: participant.name
+                            }
+                        });
+                        return {
+                            name: participant.name,
+                            uri: uploadedFile.uri,
+                            mimeType: uploadedFile.mimeType
+                        };
+                    })
+            );
 
-            const participantUploads = members
+            // const participantUploads = members
 
             console.log(JSON.stringify(mainFile), "mainFile")
 
@@ -199,7 +226,7 @@ const App = () => {
 
             // 4. Отправка запроса
             const response = await ai.models.generateContent({
-                model: "gemini-2.0-flash",
+                model: "gemini-2.5-pro-preview-05-06",
                 contents: createUserContent(promptParts),
 
                 config: {
@@ -224,8 +251,10 @@ const App = () => {
     };
 
     const handleTimeClick = (timeString: string) => {
+        console.log(timeString)
         if (!audioRef.current) return;
         const seconds = parseTimeToSeconds(timeString);
+        console.log(seconds)
         audioRef.current.currentTime = seconds;
         audioRef.current.play();
     };
